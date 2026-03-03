@@ -6,7 +6,6 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-
 body{
   font-family:system-ui,-apple-system;
   background:#343541;
@@ -14,8 +13,6 @@ body{
   display:flex;
   height:100vh;
 }
-
-/* Sidebar */
 #sidebar{
   width:260px;
   background:#202123;
@@ -23,7 +20,6 @@ body{
   display:flex;
   flex-direction:column;
 }
-
 #newChat{
   padding:10px;
   border:1px solid #444;
@@ -33,7 +29,6 @@ body{
   text-align:center;
 }
 #newChat:hover{background:#2a2b32}
-
 .chatItem{
   padding:10px;
   border-radius:6px;
@@ -43,35 +38,25 @@ body{
 }
 .chatItem:hover{background:#2a2b32}
 .activeChat{background:#2a2b32}
-
-/* Main area */
 #main{
   flex:1;
   display:flex;
   flex-direction:column;
 }
-
 header{
   padding:15px;
   text-align:center;
   background:#202123;
   font-weight:600;
 }
-
 #chat{
   flex:1;
   overflow-y:auto;
   padding:20px;
 }
-
-.message{
-  display:flex;
-  margin:15px 0;
-}
-
+.message{display:flex;margin:15px 0;}
 .user{justify-content:flex-end}
 .bot{justify-content:flex-start}
-
 .bubble{
   max-width:70%;
   padding:14px;
@@ -81,8 +66,6 @@ header{
 }
 .user .bubble{background:#2563eb}
 .bot .bubble{background:#444654}
-
-/* Code block */
 pre{
   background:#111;
   padding:10px;
@@ -90,8 +73,6 @@ pre{
   overflow-x:auto;
   margin-top:8px;
 }
-
-/* Input */
 #inputBar{
   display:flex;
   padding:15px;
@@ -127,7 +108,7 @@ button:hover{opacity:.9}
   <header>💬 Converso</header>
   <div id="chat"></div>
   <div id="inputBar">
-    <input id="userInput" placeholder="Send a message...">
+    <input id="userInput" placeholder="Type a message or math problem...">
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
@@ -135,7 +116,6 @@ button:hover{opacity:.9}
 <script>
 let conversations = JSON.parse(localStorage.getItem("converso_chats") || "{}");
 let currentChatId = null;
-
 const chatDiv = document.getElementById("chat");
 const chatList = document.getElementById("chatList");
 
@@ -178,73 +158,58 @@ function renderChat(){
 function addMessage(text, role, save=true){
   const msg = document.createElement("div");
   msg.className = "message " + (role === "user" ? "user" : "bot");
-
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.innerHTML = formatText(text);
-
+  bubble.innerHTML = text;
   msg.appendChild(bubble);
   chatDiv.appendChild(msg);
   chatDiv.scrollTop = chatDiv.scrollHeight;
-
   if(save){
     conversations[currentChatId].push({text, role});
     saveChats();
   }
-
   return bubble;
 }
 
-function formatText(text){
-  return text.replace(/```([\s\S]*?)```/g, "<pre>$1</pre>");
+/* SAFE MATH PARSER */
+function evaluateExpression(expr){
+  expr = expr.toLowerCase();
+  expr = expr.replace(/sqrt\(([^)]+)\)/g, (_,num)=>Math.sqrt(parseFloat(num)));
+  expr = expr.replace(/(\d+)%\s*of\s*(\d+)/g, (_,a,b)=>(a/100)*b);
+  expr = expr.replace(/\^/g,"**");
+
+  if(!/^[0-9+\-*/().*\s]+$/.test(expr)) return null;
+
+  try{
+    return Function('"use strict";return (' + expr + ')')();
+  }catch{
+    return null;
+  }
 }
 
-function random(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
-}
-
-/* Converso Brain (Offline Simulation) */
 function generateResponse(text){
-  const lower = text.toLowerCase();
+  const lower = text.toLowerCase().trim();
 
-  if(lower.includes("hello") || lower.includes("hi"))
-    return "Hello 👋 What would you like to talk about?";
-
-  if(lower.includes("code"))
-    return "Here’s a simple example:\n```js\nconsole.log('Hello world');\n```";
-
-  if(lower.includes("story"))
-    return "Once upon a time, someone started a conversation that led to something unexpected.";
-
-  if(lower.includes("explain"))
-    return "Sure. Let's break it down step by step:\n1. Understand the idea\n2. Analyze the details\n3. Draw a conclusion";
-
-  if(lower.includes("math")){
-    try{
-      const expression = text.replace(/[^-()\d/*+.]/g,"");
-      const result = eval(expression);
-      if(result !== undefined) return "Result: " + result;
-    }catch{}
+  const mathResult = evaluateExpression(lower);
+  if(mathResult !== null && mathResult !== undefined){
+    return "🧮 Result: <b>" + mathResult + "</b>";
   }
 
-  const generic = [
-    "Interesting thought.",
-    "Tell me more.",
-    "What makes you say that?",
-    "Let's explore that idea.",
-    "Can you clarify?"
-  ];
+  if(lower.includes("hello") || lower.includes("hi"))
+    return "Hello 👋 What would you like to calculate or discuss?";
 
-  return random(generic);
+  if(lower.includes("story"))
+    return "Once upon a time, numbers came to life and formed their own equations.";
+
+  return "I'm ready to solve math problems. Try something like: (5+3)*2 or sqrt(49)";
 }
 
-/* Typing Effect */
 async function streamText(element, text){
   element.innerHTML = "";
   for(let i=0;i<text.length;i++){
     element.innerHTML += text[i];
     chatDiv.scrollTop = chatDiv.scrollHeight;
-    await new Promise(r=>setTimeout(r,10));
+    await new Promise(r=>setTimeout(r,8));
   }
 }
 
@@ -252,21 +217,16 @@ async function sendMessage(){
   const input = document.getElementById("userInput");
   const text = input.value.trim();
   if(!text || !currentChatId) return;
-
   input.value = "";
   addMessage(text, "user");
-
-  const bubble = addMessage("Thinking...", "bot");
+  const bubble = addMessage("Calculating...", "bot");
   const response = generateResponse(text);
-
   await streamText(bubble, response);
-
   conversations[currentChatId][conversations[currentChatId].length-1].text = response;
   saveChats();
 }
 
 document.getElementById("newChat").onclick = createNewChat;
-
 document.getElementById("userInput").addEventListener("keydown", e=>{
   if(e.key === "Enter") sendMessage();
 });
