@@ -43,15 +43,15 @@ margin-top:10px;
 Coins: <span id="coins">0</span>
 </div>
 
-<div id="menu">
+<div>
 
 <h3>🌎 Tournament</h3>
 
-<button onclick="startMatch('Japan',3)">🇯🇵 Japan</button>
-<button onclick="startMatch('Germany',4)">🇩🇪 Germany</button>
-<button onclick="startMatch('UK',4)">🇬🇧 UK</button>
-<button onclick="startMatch('USA',5)">🇺🇸 USA</button>
-<button onclick="startMatch('China',6)">🇨🇳 China</button>
+<button onclick="startMatch('Japan')">🇯🇵 Japan</button>
+<button onclick="startMatch('Germany')">🇩🇪 Germany</button>
+<button onclick="startMatch('UK')">🇬🇧 UK</button>
+<button onclick="startMatch('USA')">🇺🇸 USA</button>
+<button onclick="startMatch('China')">🇨🇳 China</button>
 
 </div>
 
@@ -72,6 +72,10 @@ Coins: <span id="coins">0</span>
 
 <canvas id="game" width="900" height="500"></canvas>
 
+<button id="restart" onclick="restartGame()" style="display:none">
+Play Again
+</button>
+
 <script>
 
 const canvas = document.getElementById("game")
@@ -91,11 +95,11 @@ localStorage.setItem("equipped",equipped)
 
 }
 
-const racketStats = {
+const racketStats={
 
 normal:{size:45,speed:1,spin:1},
 
-speedPro:{size:45,speed:1.5,spin:1},
+speedPro:{size:45,speed:1.4,spin:1},
 
 spinMaster:{size:45,speed:1.1,spin:2},
 
@@ -103,7 +107,7 @@ control:{size:55,speed:1,spin:1},
 
 giant:{size:65,speed:0.9,spin:1},
 
-power:{size:45,speed:2,spin:0.8}
+power:{size:45,speed:1.8,spin:0.8}
 
 }
 
@@ -118,8 +122,7 @@ let ai={
 x:820,
 y:250,
 r:45,
-score:0,
-speed:3
+score:0
 }
 
 let ball={
@@ -130,22 +133,25 @@ vy:3,
 r:8
 }
 
-let winScore = 10
+let winScore=10
+let running=true
+
+let aiReaction=0
+let aiTargetY=250
 
 function applyRacketStats(){
 
-let stats = racketStats[equipped]
+let stats=racketStats[equipped]
 
-player.r = stats.size
+player.r=stats.size
+ai.r=stats.size
 
 }
 
-function startMatch(country,difficulty){
+function startMatch(country){
 
 player.score=0
 ai.score=0
-
-ai.speed=difficulty
 
 applyRacketStats()
 
@@ -207,8 +213,8 @@ function resetBall(){
 ball.x=canvas.width/2
 ball.y=canvas.height/2
 
-ball.vx = Math.random()>0.5 ? 5 : -5
-ball.vy = (Math.random()*4)-2
+ball.vx=Math.random()>0.5?5:-5
+ball.vy=(Math.random()*4)-2
 
 }
 
@@ -216,21 +222,44 @@ function checkWin(){
 
 if(player.score>=winScore){
 
-alert("🏆 You Win The Match!")
+alert("🏆 You Won The Match!")
 
-player.score=0
-ai.score=0
+running=false
+
+showRestart()
 
 }
 
 if(ai.score>=winScore){
 
-alert("😢 You Lost The Match")
+alert("😢 AI Won The Match")
+
+running=false
+
+showRestart()
+
+}
+
+}
+
+function showRestart(){
+
+document.getElementById("restart").style.display="inline"
+
+}
+
+function restartGame(){
 
 player.score=0
 ai.score=0
 
-}
+document.getElementById("score").innerText="0 : 0"
+
+running=true
+
+document.getElementById("restart").style.display="none"
+
+resetBall()
 
 }
 
@@ -239,24 +268,24 @@ function update(){
 ball.x+=ball.vx
 ball.y+=ball.vy
 
-if(ball.y<0 || ball.y>canvas.height){
+if(ball.y<0||ball.y>canvas.height){
 
 ball.vy*=-1
 
 }
 
-let stats = racketStats[equipped]
+let stats=racketStats[equipped]
 
-if(ball.x<player.x+player.r &&
+if(ball.x<player.x+player.r&&
 Math.abs(ball.y-player.y)<player.r){
 
 ball.vx=Math.abs(ball.vx)*stats.speed
 
-ball.vy += (Math.random()-0.5)*stats.spin*4
+ball.vy+=(Math.random()-0.5)*stats.spin*4
 
 }
 
-if(ball.x>ai.x-ai.r &&
+if(ball.x>ai.x-ai.r&&
 Math.abs(ball.y-ai.y)<ai.r){
 
 ball.vx=-Math.abs(ball.vx)
@@ -284,7 +313,17 @@ resetBall()
 
 }
 
-ai.y+=((ball.y-ai.y)*0.1)*ai.speed
+aiReaction++
+
+if(aiReaction>8){
+
+aiTargetY=ball.y+(Math.random()*80-40)
+
+aiReaction=0
+
+}
+
+ai.y+=(aiTargetY-ai.y)*0.08
 
 document.getElementById("score").innerText=
 player.score+" : "+ai.score
@@ -301,7 +340,6 @@ grad.addColorStop(0,"#1e293b")
 grad.addColorStop(1,"#020617")
 
 ctx.fillStyle=grad
-
 ctx.fillRect(0,0,canvas.width,canvas.height)
 
 ctx.strokeStyle="white"
@@ -311,7 +349,6 @@ ctx.setLineDash([10,10])
 ctx.beginPath()
 
 ctx.moveTo(canvas.width/2,0)
-
 ctx.lineTo(canvas.width/2,canvas.height)
 
 ctx.stroke()
@@ -327,32 +364,30 @@ drawTable()
 ctx.fillStyle="red"
 
 ctx.beginPath()
-
 ctx.arc(player.x,player.y,player.r,0,Math.PI*2)
-
 ctx.fill()
 
 ctx.fillStyle="blue"
 
 ctx.beginPath()
-
 ctx.arc(ai.x,ai.y,ai.r,0,Math.PI*2)
-
 ctx.fill()
 
 ctx.fillStyle="white"
 
 ctx.beginPath()
-
 ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2)
-
 ctx.fill()
 
 }
 
 function game(){
 
+if(running){
+
 update()
+
+}
 
 draw()
 
