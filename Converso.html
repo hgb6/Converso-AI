@@ -254,5 +254,32 @@ if(Object.keys(conversations).length===0){
 }
 </script>
 
+<script>
+const siteName = "ConversoAI";
+
+let userId = localStorage.getItem("tracker_user");
+
+if (!userId) {
+  userId = Math.random().toString(36).substring(2);
+  localStorage.setItem("tracker_user", userId);
+}
+
+function track() {
+  fetch("https://YOUR-TRACKER-SERVER.com/track", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      site: siteName,
+      page: window.location.pathname,
+      user: userId
+    })
+  });
+}
+
+track();
+setInterval(track, 10000);
+</script>
 </body>
 </html>
