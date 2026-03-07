@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Anti-Stress Game Hub</title>
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
+}
+
+button{
+padding:10px 20px;
+margin:5px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+}
+
+#gameArea{
+margin-top:20px;
+}
+
+.bubble{
+width:60px;
+height:60px;
+border-radius:50%;
+position:absolute;
+cursor:pointer;
+}
+
+#canvas{
+border:2px solid white;
+background:white;
+}
+
+.mole{
+width:70px;
+height:70px;
+background:brown;
+border-radius:50%;
+display:inline-block;
+margin:20px;
+cursor:pointer;
+}
+
+</style>
+</head>
+<body>
+
+<h1>🧠 Anti-Stress Game Hub</h1>
+
+<div>
+<button onclick="bubbleGame()">Bubble Pop</button>
+<button onclick="colorGame()">Color Click</button>
+<button onclick="drawGame()">Drawing Pad</button>
+<button onclick="fidgetGame()">Fidget Button</button>
+<button onclick="moleGame()">Whack-a-Mole</button>
+</div>
+
+<div id="gameArea"></div>
+
+<script>
+
+const gameArea = document.getElementById("gameArea")
+
+function clearGame(){
+gameArea.innerHTML=""
+}
+
+/* Bubble Pop */
+
+function bubbleGame(){
+clearGame()
+
+for(let i=0;i<15;i++){
+
+let bubble = document.createElement("div")
+bubble.className="bubble"
+
+bubble.style.background =
+`hsl(${Math.random()*360},70%,60%)`
+
+bubble.style.left = Math.random()*90+"%"
+bubble.style.top = Math.random()*70+"%"
+
+bubble.onclick=()=>{
+bubble.remove()
+}
+
+gameArea.appendChild(bubble)
+
+}
+}
+
+/* Color Click */
+
+function colorGame(){
+clearGame()
+
+let box = document.createElement("div")
+box.style.width="200px"
+box.style.height="200px"
+box.style.margin="auto"
+box.style.cursor="pointer"
+
+function change(){
+box.style.background =
+`hsl(${Math.random()*360},70%,60%)`
+}
+
+box.onclick=change
+
+change()
+
+gameArea.appendChild(box)
+}
+
+/* Drawing Pad */
+
+function drawGame(){
+clearGame()
+
+let canvas = document.createElement("canvas")
+canvas.id="canvas"
+canvas.width=500
+canvas.height=400
+
+gameArea.appendChild(canvas)
+
+let ctx = canvas.getContext("2d")
+let drawing=false
+
+canvas.onmousedown=()=>drawing=true
+canvas.onmouseup=()=>drawing=false
+
+canvas.onmousemove=(e)=>{
+if(!drawing) return
+
+ctx.fillStyle="black"
+ctx.beginPath()
+ctx.arc(e.offsetX,e.offsetY,3,0,Math.PI*2)
+ctx.fill()
+}
+
+}
+
+/* Fidget Button */
+
+function fidgetGame(){
+clearGame()
+
+let btn = document.createElement("button")
+btn.textContent="CLICK ME!"
+
+let count=0
+
+btn.onclick=()=>{
+count++
+btn.textContent="Clicks: "+count
+}
+
+gameArea.appendChild(btn)
+}
+
+/* Whack a Mole */
+
+function moleGame(){
+clearGame()
+
+for(let i=0;i<6;i++){
+
+let mole=document.createElement("div")
+mole.className="mole"
+
+mole.onclick=()=>{
+mole.style.background="green"
+}
+
+gameArea.appendChild(mole)
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
