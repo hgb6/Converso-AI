@@ -1,41 +1,3 @@
-const express = require("express"); 
-const app = express();
-
-app.use(express.json()); 
-
-// Store live visitors
-let visitors = {};
-
-// Set your dashboard password here
-const DASHBOARD_PASSWORD = "MySecret123"; // change this to your password
-
-// Endpoint for tracking visits from pages
-app.post("/track", (req, res) => {
-  const { site, page, user } = req.body;
-
-  if (!visitors[site]) visitors[site] = {};
-
-  visitors[site][user] = {
-    page: page,
-    time: Date.now()
-  };
-
-  res.sendStatus(200);
-});
-
-// Remove inactive users every 5 seconds
-setInterval(() => {
-  const now = Date.now();
-  for (const site in visitors) {
-    for (const user in visitors[site]) {
-      if (now - visitors[site][user].time > 30000) { // 30s timeout
-        delete visitors[site][user];
-      }
-    }
-  }
-}, 5000);
-
-// Dashboard route with password protection
 app.get("/dashboard", (req, res) => {
   const password = req.query.password;
 
@@ -43,7 +5,7 @@ app.get("/dashboard", (req, res) => {
     return res.status(401).send("Access denied: Incorrect password");
   }
 
-  let html = "<h1>Converso AI Live Tracker</h1>";
+  let html = `<h1>Converso AI Live Tracker</h1>`;
   let total = 0;
 
   for (const site in visitors) {
@@ -58,10 +20,6 @@ app.get("/dashboard", (req, res) => {
   }
 
   html += `<h2>Total Online: ${total}</h2>`;
-  res.send(html);
-});
 
-// Start server
-app.listen(3000, () => {
-  console.log("Tracker server running on port 3000");
+  res.send(html);
 });
