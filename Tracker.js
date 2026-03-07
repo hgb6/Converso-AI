@@ -17,7 +17,7 @@ app.get("/dashboard", (req, res) => {
     for (const u in users) {
       html += `<p>User on page: ${users[u].page}</p>`;
     }
-  } 
+  }
 
   html += `<h2>Total Online: ${total}</h2>`;
 
