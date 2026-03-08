@@ -4,21 +4,48 @@
 <title>🧺Converso Store</title>
 
 <style>
-body{ 
-    background-image: url("Converso AI.jpg"); /* replace with your image */
-    background-size: 150;       /* makes it fill the screen */
-    background-repeat: repeat; /* prevents repeating */
-    background-attachment: fixed; /* keeps background still when scrolling */
-    background-position: top left;
+body{
+    background-image: url("background.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
     font-family: Arial, sans-serif;
     color: white;
 }
 
-.scrollmenu a{
-    margin-right: 15px;
+/* white links */
+a{
     color: white;
     text-decoration: none;
+}
+
+a:hover{
+    color: lightgray;
+}
+
+/* top menu */
+.scrollmenu a{
+    margin-right: 15px;
     font-weight: bold;
+}
+
+/* game store layout */
+.games{
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* game card */
+.game{
+    text-align: center;
+}
+
+/* game image */
+.game img{
+    width: 200px;
+    border-radius: 10px;
 }
 </style>
 
@@ -34,10 +61,23 @@ body{
 
 <h1>🧺Converso Store</h1>
 
-<p>
-<a href="Ping-Pong-World-Tour.html">Ping Pong World Tour</a><br>
-<a href="Antistress.html">Antistress</a>
-</p>
+<div class="games">
+
+<div class="game">
+<a href="Ping-Pong-World-Tour.html">
+<img src="pingpong.jpg">
+<br>🏓 Ping Pong World Tour
+</a>
+</div>
+
+<div class="game">
+<a href="Antistress.html">
+<img src="antistress.jpg">
+<br>🧸 Antistress
+</a>
+</div>
+
+</div>
 
 </body>
 </html>
