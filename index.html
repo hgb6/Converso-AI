@@ -10,14 +10,16 @@ body{
 
     /* Background image */
     background-image: url("Converso AI.png");
-    background-size: 150;       /* makes image fill screen */
+    background-size: 150;
     background-repeat: repeat; 
     background-position: left center;
 }
 
+/* NORMAL (tablet, iPad, laptop, monitor) */
 h1{
     text-align:center;
-    color:White;
+    color:white;
+    font-size: 36px;
 }
 
 .scrollmenu{
@@ -27,10 +29,29 @@ h1{
 }
 
 .scrollmenu a{
-    color:White;
+    color:white;
     text-decoration:none;
     margin:20px;
     font-size:18px;
+}
+
+/* 📱 PHONE ONLY */
+@media (max-width: 600px) {
+
+    h1{
+        font-size: 50px;   /* bigger title */
+    }
+
+    .scrollmenu{
+        padding:20px;      /* bigger spacing */
+    }
+
+    .scrollmenu a{
+        display:block;     /* stack links vertically */
+        margin:15px 0;
+        font-size:26px;    /* bigger buttons/text */
+    }
+
 }
 </style>
 
@@ -41,9 +62,10 @@ h1{
 <h1>💬 Converso AI</h1>
 
 <div class="scrollmenu">
-<a href="https://hgb6.github.io/Converso-AI/">Home</a>&nbsp;&nbsp;
-<a href="https://hgb6.github.io/Converso-AI/Converso.html">Converso Chatbot</a>&nbsp;&nbsp;
-<a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>&nbsp;&nbsp;&nbsp;
+<a href="https://hgb6.github.io/Converso-AI/">Home</a>
+<a href="https://hgb6.github.io/Converso-AI/Converso.html">Converso Chatbot</a>
+<a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>
 </div>
+
 </body>
 </html>
