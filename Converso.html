@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Converso</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -14,6 +15,7 @@ body{
   display:flex;
   height:100vh;
   flex-direction:column;
+  font-size:16px; /* default base size */
 }
 
 /* TOP NAV */
@@ -21,6 +23,8 @@ body{
 .scrollmenu{
   background:#202123;
   padding:12px;
+  overflow-x:auto;
+  white-space:nowrap;
 }
 
 .scrollmenu a{
@@ -28,6 +32,7 @@ body{
   text-decoration:none;
   margin-right:20px;
   font-weight:500;
+  font-size:16px;
 }
 
 .scrollmenu a:hover{
@@ -50,12 +55,13 @@ body{
 }
 
 #newChat{
-  padding:10px;
+  padding:12px;
   border:1px solid #444;
   border-radius:6px;
   cursor:pointer;
   margin-bottom:15px;
   text-align:center;
+  font-size:16px;
 }
 
 #newChat:hover{
@@ -63,10 +69,10 @@ body{
 }
 
 .chatItem{
-  padding:10px;
+  padding:12px;
   border-radius:6px;
   cursor:pointer;
-  font-size:14px;
+  font-size:16px;
   margin-bottom:5px;
   display:flex;
   justify-content:space-between;
@@ -87,10 +93,11 @@ body{
 }
 
 header{
-  padding:15px;
+  padding:18px;
   text-align:center;
   background:#202123;
   font-weight:600;
+  font-size:20px;
 }
 
 #chat{
@@ -114,18 +121,21 @@ header{
 
 .bubble{
   max-width:70%;
-  padding:14px;
+  padding:16px;
   border-radius:10px;
   white-space:pre-wrap;
   line-height:1.4;
+  font-size:16px;
 }
 
 .user .bubble{
   background:#2563eb;
+  color:white;
 }
 
 .bot .bubble{
   background:#444654;
+  color:white;
 }
 
 pre{
@@ -134,6 +144,7 @@ pre{
   border-radius:6px;
   overflow-x:auto;
   margin-top:8px;
+  font-size:14px;
 }
 
 #inputBar{
@@ -144,24 +155,80 @@ pre{
 
 #userInput{
   flex:1;
-  padding:12px;
+  padding:14px;
   border-radius:8px;
   border:none;
-  font-size:15px;
+  font-size:16px;
 }
 
 button{
   margin-left:10px;
-  padding:12px 16px;
+  padding:14px 18px;
   border:none;
   border-radius:8px;
   background:#10a37f;
   color:white;
   cursor:pointer;
+  font-size:16px;
 }
 
 button:hover{
   opacity:.9;
+}
+
+/* MOBILE RESPONSIVE STYLES */
+
+@media (max-width: 700px) {
+
+  /* Stack layout vertically */
+  #container {
+    flex-direction: column;
+  }
+
+  /* Sidebar horizontal scroll */
+  #sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 10px;
+    padding:10px;
+  }
+
+  #chatList {
+    display: flex;
+    gap: 10px;
+  }
+
+  .chatItem {
+    min-width: 120px;
+    font-size: 16px;
+  }
+
+  /* Chat bubbles wider */
+  .bubble {
+    max-width: 90%;
+  }
+
+  /* Bigger header */
+  header {
+    font-size: 22px;
+  }
+
+  /* Input bar larger */
+  #userInput {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 14px 18px;
+  }
+
+  /* Navbar bigger */
+  .scrollmenu a {
+    font-size: 16px;
+  }
 }
 </style>
 </head>
@@ -171,38 +238,35 @@ button:hover{
 <!-- NAVBAR -->
 
 <div class="scrollmenu">
-<a href="https://hgb6.github.io/Converso-AI/">Home</a>
-<a href="Converso.html">Converso Chatbot</a>                                       
-<a href="Games.html">Games</a>
+  <a href="https://hgb6.github.io/Converso-AI/">Home</a>
+  <a href="Converso.html">Converso Chatbot</a>                                       
+  <a href="Games.html">Games</a>
 </div>
 
 <div id="container">
 
-<!-- SIDEBAR -->
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="newChat">+ New Chat</div>
+    <div id="chatList"></div>
+  </div>
 
-<div id="sidebar">
-  <div id="newChat">+ New Chat</div>
-  <div id="chatList"></div>
-</div>
+  <!-- MAIN -->
+  <div id="main">
 
-<!-- MAIN -->
+    <header>💬 Converso</header>
 
-<div id="main">
+    <div id="chat"></div>
 
-<header>💬 Converso</header>
+    <div id="inputBar">
+      <input id="userInput" placeholder="Type a message or math problem...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
 
-<div id="chat"></div>
-
-<div id="inputBar">
-<input id="userInput" placeholder="Type a message or math problem...">
-<button onclick="sendMessage()">Send</button>
-</div>
-
-</div>
+  </div>
 </div>
 
 <script>
-
 let conversations = JSON.parse(localStorage.getItem("converso_chats") || "{}");
 let currentChatId = null;
 
@@ -210,306 +274,146 @@ const chatDiv = document.getElementById("chat");
 const chatList = document.getElementById("chatList");
 
 /* SAFE MATH */
-
 function evaluateExpression(expr){
-
-expr = expr.toLowerCase();
-
-expr = expr.replace(/sqrt\(([^)]+)\)/g, (_,n)=>Math.sqrt(parseFloat(n)));
-
-expr = expr.replace(/(\d+)%\s*of\s*(\d+)/g, (_,a,b)=>(a/100)*b);
-
-expr = expr.replace(/\^/g,"**");
-
-if(!/^[0-9+\-*/().*\s]+$/.test(expr)) return null;
-
-try{
-return Function('"use strict";return (' + expr + ')')();
-}catch{
-return null;
-}
-
+  expr = expr.toLowerCase();
+  expr = expr.replace(/sqrt\(([^)]+)\)/g, (_,n)=>Math.sqrt(parseFloat(n)));
+  expr = expr.replace(/(\d+)%\s*of\s*(\d+)/g, (_,a,b)=>(a/100)*b);
+  expr = expr.replace(/\^/g,"**");
+  if(!/^[0-9+\-*/().*\s]+$/.test(expr)) return null;
+  try{ return Function('"use strict";return (' + expr + ')')(); } catch { return null; }
 }
 
 /* RESPONSE ENGINE */
-
 function generateResponse(text){
-
-const lower = text.toLowerCase().trim();
-
-/* TIME */
-
-if(lower.includes("time")){
-
-const now = new Date();
-
-return "⏰ Current time: " + now.toLocaleTimeString();
-
-}
-
-/* DATE */
-
-if(lower.includes("date") || lower.includes("day")){
-
-const now = new Date();
-
-return "📅 Today is: " + now.toLocaleDateString(undefined,{
-weekday:'long',
-year:'numeric',
-month:'long',
-day:'numeric'
-});
-
-}
-
-/* WEATHER */
-
-if(lower.includes("weather")){
-
-return "🌤️ I cannot fetch live weather yet, but try https://weather.com";
-
-}
-
-/* SEARCH */
-
-if(lower.startsWith("search ")){
-
-const query = text.substring(7);
-
-const url = "https://www.google.com/search?q=" + encodeURIComponent(query);
-
-return `🔎 Search results for "<b>${query}</b>"<br><a href="${url}" target="_blank">Open Google</a>`;
-
-}
-
-/* MATH */
-
-const math = evaluateExpression(lower);
-
-if(math !== null && math !== undefined){
-
-return "🧮 Result: <b>" + math + "</b>";
-
-}
-
-/* GREETING */
-
-if(lower.includes("hello") || lower.includes("hi")){
-
-return "Hello 👋 How can I help you?";
-
-}
-
-/* DEFAULT */
-
-return "I can calculate math, tell time/date, search Google, or answer basic questions.";
-
+  const lower = text.toLowerCase().trim();
+  if(lower.includes("time")){
+    const now = new Date();
+    return "⏰ Current time: " + now.toLocaleTimeString();
+  }
+  if(lower.includes("date") || lower.includes("day")){
+    const now = new Date();
+    return "📅 Today is: " + now.toLocaleDateString(undefined,{
+      weekday:'long',
+      year:'numeric',
+      month:'long',
+      day:'numeric'
+    });
+  }
+  if(lower.includes("weather")){
+    return "🌤️ I cannot fetch live weather yet, but try https://weather.com";
+  }
+  if(lower.startsWith("search ")){
+    const query = text.substring(7);
+    const url = "https://www.google.com/search?q=" + encodeURIComponent(query);
+    return `🔎 Search results for "<b>${query}</b>"<br><a href="${url}" target="_blank">Open Google</a>`;
+  }
+  const math = evaluateExpression(lower);
+  if(math !== null && math !== undefined){
+    return "🧮 Result: <b>" + math + "</b>";
+  }
+  if(lower.includes("hello") || lower.includes("hi")){
+    return "Hello 👋 How can I help you?";
+  }
+  return "I can calculate math, tell time/date, search Google, or answer basic questions.";
 }
 
 /* SAVE */
-
 function saveChats(){
-
-localStorage.setItem("converso_chats", JSON.stringify(conversations));
-
+  localStorage.setItem("converso_chats", JSON.stringify(conversations));
 }
 
 /* NEW CHAT */
-
 function createNewChat(){
-
-const id = "chat_" + Date.now();
-
-conversations[id] = [];
-
-currentChatId = id;
-
-saveChats();
-
-renderSidebar();
-
-renderChat();
-
+  const id = "chat_" + Date.now();
+  conversations[id] = [];
+  currentChatId = id;
+  saveChats();
+  renderSidebar();
+  renderChat();
 }
 
 /* SIDEBAR */
-
 function renderSidebar(){
-
-chatList.innerHTML = "";
-
-Object.keys(conversations).reverse().forEach(id=>{
-
-const div = document.createElement("div");
-
-div.className = "chatItem" + (id===currentChatId ? " activeChat":"");
-
-const title = document.createElement("span");
-
-title.innerText = "Conversation";
-
-const del = document.createElement("span");
-
-del.innerText = "🗑️";
-
-del.style.cursor = "pointer";
-
-del.onclick = (e)=>{
-
-e.stopPropagation();
-
-delete conversations[id];
-
-if(id===currentChatId){
-
-currentChatId = Object.keys(conversations)[0] || null;
-
-}
-
-saveChats();
-
-renderSidebar();
-
-renderChat();
-
-};
-
-div.onclick = ()=>{
-
-currentChatId = id;
-
-renderSidebar();
-
-renderChat();
-
-};
-
-div.appendChild(title);
-
-div.appendChild(del);
-
-chatList.appendChild(div);
-
-});
-
+  chatList.innerHTML = "";
+  Object.keys(conversations).reverse().forEach(id=>{
+    const div = document.createElement("div");
+    div.className = "chatItem" + (id===currentChatId ? " activeChat":"");
+    const title = document.createElement("span");
+    title.innerText = "Conversation";
+    const del = document.createElement("span");
+    del.innerText = "🗑️";
+    del.style.cursor = "pointer";
+    del.onclick = (e)=>{
+      e.stopPropagation();
+      delete conversations[id];
+      if(id===currentChatId){ currentChatId = Object.keys(conversations)[0] || null; }
+      saveChats();
+      renderSidebar();
+      renderChat();
+    };
+    div.onclick = ()=>{ currentChatId = id; renderSidebar(); renderChat(); };
+    div.appendChild(title);
+    div.appendChild(del);
+    chatList.appendChild(div);
+  });
 }
 
 /* CHAT RENDER */
-
 function renderChat(){
-
-chatDiv.innerHTML="";
-
-if(!currentChatId) return;
-
-conversations[currentChatId].forEach(msg=>{
-
-addMessage(msg.text,msg.role,false);
-
-});
-
+  chatDiv.innerHTML="";
+  if(!currentChatId) return;
+  conversations[currentChatId].forEach(msg=>{ addMessage(msg.text,msg.role,false); });
 }
 
 /* ADD MESSAGE */
-
 function addMessage(text,role,save=true){
-
-const msg=document.createElement("div");
-
-msg.className="message "+(role==="user"?"user":"bot");
-
-const bubble=document.createElement("div");
-
-bubble.className="bubble";
-
-bubble.innerHTML=text.replace(/\n/g,"<br>");
-
-msg.appendChild(bubble);
-
-chatDiv.appendChild(msg);
-
-chatDiv.scrollTop=chatDiv.scrollHeight;
-
-if(save){
-
-conversations[currentChatId].push({text,role});
-
-saveChats();
-
-}
-
-return bubble;
-
+  const msg=document.createElement("div");
+  msg.className="message "+(role==="user"?"user":"bot");
+  const bubble=document.createElement("div");
+  bubble.className="bubble";
+  bubble.innerHTML=text.replace(/\n/g,"<br>");
+  msg.appendChild(bubble);
+  chatDiv.appendChild(msg);
+  chatDiv.scrollTop=chatDiv.scrollHeight;
+  if(save){ conversations[currentChatId].push({text,role}); saveChats(); }
+  return bubble;
 }
 
 /* STREAM TEXT */
-
 async function streamText(el,text){
-
-el.innerHTML="";
-
-for(let i=0;i<text.length;i++){
-
-el.innerHTML+=text[i];
-
-chatDiv.scrollTop=chatDiv.scrollHeight;
-
-await new Promise(r=>setTimeout(r,6));
-
-}
-
+  el.innerHTML="";
+  for(let i=0;i<text.length;i++){
+    el.innerHTML+=text[i];
+    chatDiv.scrollTop=chatDiv.scrollHeight;
+    await new Promise(r=>setTimeout(r,6));
+  }
 }
 
 /* SEND MESSAGE */
-
 async function sendMessage(){
-
-const input=document.getElementById("userInput");
-
-const text=input.value.trim();
-
-if(!text || !currentChatId) return;
-
-input.value="";
-
-addMessage(text,"user");
-
-const bubble=addMessage("Thinking...","bot");
-
-const response=generateResponse(text);
-
-await streamText(bubble,response);
-
-conversations[currentChatId][conversations[currentChatId].length-1].text=response;
-
-saveChats();
-
+  const input=document.getElementById("userInput");
+  const text=input.value.trim();
+  if(!text || !currentChatId) return;
+  input.value="";
+  addMessage(text,"user");
+  const bubble=addMessage("Thinking...","bot");
+  const response=generateResponse(text);
+  await streamText(bubble,response);
+  conversations[currentChatId][conversations[currentChatId].length-1].text=response;
+  saveChats();
 }
 
 document.getElementById("newChat").onclick=createNewChat;
-
-document.getElementById("userInput").addEventListener("keydown",e=>{
-
-if(e.key==="Enter") sendMessage();
-
-});
+document.getElementById("userInput").addEventListener("keydown",e=>{ if(e.key==="Enter") sendMessage(); });
 
 /* INIT */
-
 if(Object.keys(conversations).length===0){
-
-createNewChat();
-
+  createNewChat();
 }else{
-
-currentChatId=Object.keys(conversations)[0];
-
-renderSidebar();
-
-renderChat();
-
+  currentChatId=Object.keys(conversations)[0];
+  renderSidebar();
+  renderChat();
 }
-
 </script>
 
 </body>
