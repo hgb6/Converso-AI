@@ -1,46 +1,106 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
-<title>Ping Pong World Tour</title>
+<title>🏓 Ping Pong World Tour</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style> 
-
 body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-text-align:center;
+  background:#0f172a;
+  color:white;
+  font-family:Arial, sans-serif;
+  text-align:center;
+  margin:0;
+  padding:0;
 }
 
+/* CANVAS */
 canvas{
-background:linear-gradient(#1e293b,#020617);
-border:3px solid white;
-display:block;
-margin:auto;
+  background:linear-gradient(#1e293b,#020617);
+  border:3px solid white;
+  display:block;
+  margin:auto;
+  max-width:95%;
+  height:auto;
 }
 
+/* BUTTONS */
 button{
-padding:10px;
-margin:5px;
-font-size:16px;
-cursor:pointer;
+  padding:12px 20px;
+  margin:5px;
+  font-size:16px;
+  cursor:pointer;
+  border-radius:6px;
+  border:none;
 }
 
-.shop{
-margin-top:10px;
+/* SHOP & TOURNAMENT */
+.shop, .tournament{
+  margin-top:15px;
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap:8px;
 }
 
+/* SCROLL MENU */
+.scrollmenu{
+  background:#202123;
+  padding:10px;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+
+.scrollmenu a{
+  color:white;           /* Links are white */
+  text-decoration:none;
+  margin-right:15px;
+  font-weight:bold;
+  font-size:16px;
+}
+
+.scrollmenu a:hover{
+  color:lightgray;       /* Slight change on hover */
+}
+
+/* PAGE TITLE */
+h1{
+  font-size:26px;
+  margin-top:15px;
+}
+
+/* SCORE */
+#score{
+  font-size:22px;
+  margin:10px 0;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width:700px){
+  h1{
+    font-size:22px;
+  }
+  button{
+    font-size:14px;
+    padding:10px 14px;
+  }
+  #score{
+    font-size:18px;
+  }
+  canvas{
+    width:95%;
+    height:auto;
+  }
+}
 </style>
-
 </head>        
 
 <body>
   
 <div class="scrollmenu">
-<a href="https://hgb6.github.io/Converso-AI/Home.html">Home</a>&nbsp;&nbsp;
-<a href="https://hgb6.github.io/Converso-AI/Converso.html">Converso Chatbot</a>&nbsp;&nbsp;
-<a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>&nbsp;&nbsp;&nbsp;
+<a href="https://hgb6.github.io/Converso-AI/Home.html">Home</a>
+<a href="https://hgb6.github.io/Converso-AI/Converso.html">Converso Chatbot</a>
+<a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>
 </div>
 
 <h1>🏓 Ping Pong World Tour 🌍</h1>
@@ -49,29 +109,23 @@ margin-top:10px;
 Coins: <span id="coins">0</span>
 </div>
 
-<div>
-
+<div class="tournament">
 <h3>🌎 Tournament</h3>
-
 <button onclick="startMatch('Japan')">🇯🇵 Japan</button>
 <button onclick="startMatch('Germany')">🇩🇪 Germany</button>
 <button onclick="startMatch('UK')">🇬🇧 UK</button>
 <button onclick="startMatch('USA')">🇺🇸 USA</button>
 <button onclick="startMatch('China')">🇨🇳 China</button>
-
 </div>
 
 <div class="shop">
-
 <h3>🛍 Racket Shop</h3>
-
 <button onclick="buyRacket('normal',0)">Normal Bat (Free)</button>
 <button onclick="buyRacket('speedPro',80)">⚡ Speed Pro (80)</button>
 <button onclick="buyRacket('spinMaster',120)">🌀 Spin Master (120)</button>
 <button onclick="buyRacket('control',100)">🎯 Control Bat (100)</button>
 <button onclick="buyRacket('giant',60)">🏓 Giant Bat (60)</button>
 <button onclick="buyRacket('power',150)">💥 Power Smash (150)</button>
-
 </div>
 
 <h2 id="score">0 : 0</h2>
@@ -83,328 +137,190 @@ Play Again
 </button>
 
 <script>
-
 const canvas = document.getElementById("game")
 const ctx = canvas.getContext("2d")
 
 let coins = Number(localStorage.getItem("coins")) || 0
 let rackets = JSON.parse(localStorage.getItem("rackets")) || ["normal"]
 let equipped = localStorage.getItem("equipped") || "normal"
-
 document.getElementById("coins").innerText = coins
 
 function save(){
-
-localStorage.setItem("coins",coins)
-localStorage.setItem("rackets",JSON.stringify(rackets))
-localStorage.setItem("equipped",equipped)
-
+  localStorage.setItem("coins",coins)
+  localStorage.setItem("rackets",JSON.stringify(rackets))
+  localStorage.setItem("equipped",equipped)
 }
 
 const racketStats={
-
-normal:{size:45,speed:1,spin:1},
-
-speedPro:{size:45,speed:1.4,spin:1},
-
-spinMaster:{size:45,speed:1.1,spin:2},
-
-control:{size:55,speed:1,spin:1},
-
-giant:{size:65,speed:0.9,spin:1},
-
-power:{size:45,speed:1.8,spin:0.8}
-
+  normal:{size:45,speed:1,spin:1},
+  speedPro:{size:45,speed:1.4,spin:1},
+  spinMaster:{size:45,speed:1.1,spin:2},
+  control:{size:55,speed:1,spin:1},
+  giant:{size:65,speed:0.9,spin:1},
+  power:{size:45,speed:1.8,spin:0.8}
 }
 
-let player={
-x:80,
-y:250,
-r:45,
-score:0
-}
-
-let ai={
-x:820,
-y:250,
-r:45,
-score:0
-}
-
-let ball={
-x:450,
-y:250,
-vx:5,
-vy:3,
-r:8
-}
-
+let player={x:80,y:250,r:45,score:0}
+let ai={x:820,y:250,r:45,score:0}
+let ball={x:450,y:250,vx:5,vy:3,r:8}
 let winScore=10
 let running=true
-
 let aiReaction=0
 let aiTargetY=250
 
 function applyRacketStats(){
-
-let stats=racketStats[equipped]
-
-player.r=stats.size
-ai.r=stats.size
-
+  let stats=racketStats[equipped]
+  player.r=stats.size
+  ai.r=stats.size
 }
 
 function startMatch(country){
-
-player.score=0
-ai.score=0
-
-applyRacketStats()
-
-alert("Playing against "+country)
-
-resetBall()
-
+  player.score=0
+  ai.score=0
+  applyRacketStats()
+  alert("Playing against "+country)
+  resetBall()
 }
 
 function buyRacket(type,cost){
-
-if(rackets.includes(type)){
-
-equipped=type
-alert("Equipped "+type)
-save()
-return
-
-}
-
-if(coins>=cost){
-
-coins-=cost
-rackets.push(type)
-equipped=type
-
-document.getElementById("coins").innerText=coins
-
-alert("Purchased "+type+" racket!")
-
-save()
-
-}else{
-
-alert("Not enough coins!")
-
-}
-
+  if(rackets.includes(type)){
+    equipped=type
+    alert("Equipped "+type)
+    save()
+    return
+  }
+  if(coins>=cost){
+    coins-=cost
+    rackets.push(type)
+    equipped=type
+    document.getElementById("coins").innerText=coins
+    alert("Purchased "+type+" racket!")
+    save()
+  }else{
+    alert("Not enough coins!")
+  }
 }
 
 canvas.addEventListener("mousemove",e=>{
-
-let rect=canvas.getBoundingClientRect()
-
-player.y=e.clientY-rect.top
-
+  let rect=canvas.getBoundingClientRect()
+  player.y=e.clientY-rect.top
 })
 
 canvas.addEventListener("touchmove",e=>{
-
-let rect=canvas.getBoundingClientRect()
-
-player.y=e.touches[0].clientY-rect.top
-
+  let rect=canvas.getBoundingClientRect()
+  player.y=e.touches[0].clientY-rect.top
 })
 
 function resetBall(){
-
-ball.x=canvas.width/2
-ball.y=canvas.height/2
-
-ball.vx=Math.random()>0.5?5:-5
-ball.vy=(Math.random()*4)-2
-
+  ball.x=canvas.width/2
+  ball.y=canvas.height/2
+  ball.vx=Math.random()>0.5?5:-5
+  ball.vy=(Math.random()*4)-2
 }
 
 function checkWin(){
-
-if(player.score>=winScore){
-
-alert("🏆 You Won The Match!")
-
-running=false
-
-showRestart()
-
-}
-
-if(ai.score>=winScore){
-
-alert("😢 Converso Won The Match")
-
-running=false
-
-showRestart()
-
-}
-
+  if(player.score>=winScore){
+    alert("🏆 You Won The Match!")
+    running=false
+    showRestart()
+  }
+  if(ai.score>=winScore){
+    alert("😢 Converso Won The Match")
+    running=false
+    showRestart()
+  }
 }
 
 function showRestart(){
-
-document.getElementById("restart").style.display="inline"
-
+  document.getElementById("restart").style.display="inline"
 }
 
 function restartGame(){
-
-player.score=0
-ai.score=0
-
-document.getElementById("score").innerText="0 : 0"
-
-running=true
-
-document.getElementById("restart").style.display="none"
-
-resetBall()
-
+  player.score=0
+  ai.score=0
+  document.getElementById("score").innerText="0 : 0"
+  running=true
+  document.getElementById("restart").style.display="none"
+  resetBall()
 }
 
 function update(){
+  ball.x+=ball.vx
+  ball.y+=ball.vy
+  if(ball.y<0||ball.y>canvas.height) ball.vy*=-1
 
-ball.x+=ball.vx
-ball.y+=ball.vy
+  let stats=racketStats[equipped]
+  if(ball.x<player.x+player.r&&Math.abs(ball.y-player.y)<player.r){
+    ball.vx=Math.abs(ball.vx)*stats.speed
+    ball.vy+=(Math.random()-0.5)*stats.spin*4
+  }
 
-if(ball.y<0||ball.y>canvas.height){
+  if(ball.x>ai.x-ai.r && Math.abs(ball.y-ai.y)<ai.r){
+    ball.vx=-Math.abs(ball.vx)
+  }
 
-ball.vy*=-1
+  if(ball.x<0){
+    ai.score++
+    resetBall()
+  }
+  if(ball.x>canvas.width){
+    player.score++
+    coins+=10
+    document.getElementById("coins").innerText=coins
+    save()
+    resetBall()
+  }
 
-}
+  aiReaction++
+  if(aiReaction>8){
+    aiTargetY=ball.y+(Math.random()*80-40)
+    aiReaction=0
+  }
+  ai.y+=(aiTargetY-ai.y)*0.08
 
-let stats=racketStats[equipped]
-
-if(ball.x<player.x+player.r&&
-Math.abs(ball.y-player.y)<player.r){
-
-ball.vx=Math.abs(ball.vx)*stats.speed
-
-ball.vy+=(Math.random()-0.5)*stats.spin*4
-
-}
-
-if(ball.x>ai.x-ai.r&&
-Math.abs(ball.y-ai.y)<ai.r){
-
-ball.vx=-Math.abs(ball.vx)
-
-}
-
-if(ball.x<0){
-
-ai.score++
-resetBall()
-
-}
-
-if(ball.x>canvas.width){
-
-player.score++
-
-coins+=10
-
-document.getElementById("coins").innerText=coins
-
-save()
-
-resetBall()
-
-}
-
-aiReaction++
-
-if(aiReaction>8){
-
-aiTargetY=ball.y+(Math.random()*80-40)
-
-aiReaction=0
-
-}
-
-ai.y+=(aiTargetY-ai.y)*0.08
-
-document.getElementById("score").innerText=
-player.score+" : "+ai.score
-
-checkWin()
-
+  document.getElementById("score").innerText=player.score+" : "+ai.score
+  checkWin()
 }
 
 function drawTable(){
-
-let grad=ctx.createLinearGradient(0,0,0,500)
-
-grad.addColorStop(0,"#1e293b")
-grad.addColorStop(1,"#020617")
-
-ctx.fillStyle=grad
-ctx.fillRect(0,0,canvas.width,canvas.height)
-
-ctx.strokeStyle="white"
-
-ctx.setLineDash([10,10])
-
-ctx.beginPath()
-
-ctx.moveTo(canvas.width/2,0)
-ctx.lineTo(canvas.width/2,canvas.height)
-
-ctx.stroke()
-
-ctx.setLineDash([])
-
+  let grad=ctx.createLinearGradient(0,0,0,canvas.height)
+  grad.addColorStop(0,"#1e293b")
+  grad.addColorStop(1,"#020617")
+  ctx.fillStyle=grad
+  ctx.fillRect(0,0,canvas.width,canvas.height)
+  ctx.strokeStyle="white"
+  ctx.setLineDash([10,10])
+  ctx.beginPath()
+  ctx.moveTo(canvas.width/2,0)
+  ctx.lineTo(canvas.width/2,canvas.height)
+  ctx.stroke()
+  ctx.setLineDash([])
 }
 
 function draw(){
-
-drawTable()
-
-ctx.fillStyle="red"
-
-ctx.beginPath()
-ctx.arc(player.x,player.y,player.r,0,Math.PI*2)
-ctx.fill()
-
-ctx.fillStyle="blue"
-
-ctx.beginPath()
-ctx.arc(ai.x,ai.y,ai.r,0,Math.PI*2)
-ctx.fill()
-
-ctx.fillStyle="white"
-
-ctx.beginPath()
-ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2)
-ctx.fill()
-
+  drawTable()
+  ctx.fillStyle="red"
+  ctx.beginPath()
+  ctx.arc(player.x,player.y,player.r,0,Math.PI*2)
+  ctx.fill()
+  ctx.fillStyle="blue"
+  ctx.beginPath()
+  ctx.arc(ai.x,ai.y,ai.r,0,Math.PI*2)
+  ctx.fill()
+  ctx.fillStyle="white"
+  ctx.beginPath()
+  ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2)
+  ctx.fill()
 }
 
 function game(){
-
-if(running){
-
-update()
-
-}
-
-draw()
-
-requestAnimationFrame(game)
-
+  if(running) update()
+  draw()
+  requestAnimationFrame(game)
 }
 
 game()
-
 </script>
 
 </body>
 </html>
-```
