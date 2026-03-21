@@ -3,53 +3,68 @@
 <head>
 <title>Converso AI</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body{
     margin:0;
-    font-family: Bremen BD BT;
+    font-family: Arial, sans-serif;
 
-    /* Background image */
     background-image: url("Converso AI.png");
-    background-size: 150;
-    background-repeat: repeat; 
-    background-position: left center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-/* NORMAL (tablet, iPad, laptop, monitor) */
-h1{
+/* HEADER */
+.header{
     text-align:center;
+    background: rgba(0,0,0,0.6);
+    padding:20px;
+}
+
+.logo{
     color:white;
-    font-size: 36px;
+    font-size:28px;
+    font-weight:bold;
 }
 
-.scrollmenu{
-    text-align:center;
-    background: rgba(0,0,0,0.5);
-    padding:10px;
+/* NAV MENU */
+.nav{
+    margin-top:10px;
 }
 
-.scrollmenu a{
+.nav a{
     color:white;
     text-decoration:none;
-    margin:20px;
+    margin:0 20px;
     font-size:18px;
 }
 
+/* TITLE */
+h1{
+    text-align:center;
+    color:white;
+    margin-top:100px;
+    font-size:40px;
+}
+
 /* 📱 PHONE ONLY */
-@media (max-width: 600px) {
+@media (max-width: 600px){
+
+    .logo{
+        font-size:36px;
+    }
+
+    .nav a{
+        display:block;        /* stack links */
+        margin:15px 0;
+        font-size:26px;       /* bigger buttons */
+    }
 
     h1{
-        font-size: 50px;   /* bigger title */
-    }
-
-    .scrollmenu{
-        padding:20px;      /* bigger spacing */
-    }
-
-    .scrollmenu a{
-        display:block;     /* stack links vertically */
-        margin:15px 0;
-        font-size:26px;    /* bigger buttons/text */
+        font-size:55px;
+        margin-top:60px;
     }
 
 }
@@ -59,13 +74,17 @@ h1{
 
 <body>
 
-<h1>💬 Converso AI</h1>
+<div class="header">
+    <div class="logo">💬 Converso AI</div>
 
-<div class="scrollmenu">
-<a href="https://hgb6.github.io/Converso-AI/">Home</a>
-<a href="https://hgb6.github.io/Converso-AI/Converso.html">Converso Chatbot</a>
-<a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>
+    <div class="nav">
+        <a href="https://hgb6.github.io/Converso-AI/">Home</a>
+        <a href="https://hgb6.github.io/Converso-AI/Converso.html">Chatbot</a>
+        <a href="http://hgb6.github.io/Converso-AI/Games.html">Games</a>
+    </div>
 </div>
+
+<h1>Welcome to Converso AI</h1>
 
 </body>
 </html>
