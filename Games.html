@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
 <title>🧺Converso Store</title>                  
@@ -17,38 +16,67 @@ body{
     padding:0;
 }
 
-/* white links */
 a{
     color: white;
     text-decoration: none;
 }
-
 a:hover{
     color: lightgray;
 }
 
-/* top menu */
 .scrollmenu{
     background:#202123;
     padding:12px;
     overflow-x:auto;
     white-space:nowrap;
 }
-
 .scrollmenu a{
     margin-right: 15px;
     font-weight: bold;
     font-size:16px;
 }
 
-/* page title */
 h1{
     text-align:center;
     margin:20px 0;
     font-size:28px;
 }
 
-/* game store layout */
+#tokenDisplay{
+    text-align:center;
+    font-size:20px;
+}
+
+.redeem-box{
+    text-align:center;
+    margin:20px;
+}
+
+button{
+    padding:10px 15px;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    background:#ff4444;
+    color:white;
+    cursor:pointer;
+    margin-top:5px;
+}
+button:hover{
+    background:#cc0000;
+}
+
+#uploadSection{
+    display:none;
+    margin-top:20px;
+}
+
+#preview{
+    margin-top:10px;
+    max-width:200px;
+    border-radius:10px;
+}
+
 .games{
     display: flex;
     gap: 30px;
@@ -57,46 +85,28 @@ h1{
     justify-content: center;
 }
 
-/* game card */
 .game{
     text-align: center;
-    flex: 1 1 200px; /* flexible width for small screens */
+    flex: 1 1 200px;
     max-width: 250px;
 }
 
-/* game image */
 .game img{
     width: 100%;
     border-radius: 10px;
     max-width:200px;
-    height:auto;
 }
 
-/* MOBILE RESPONSIVE STYLES */
+.locked{
+    opacity:0.5;
+}
+
 @media (max-width:700px){
-    h1{
-        font-size:24px;
-    }
-
-    .scrollmenu a{
-        font-size:14px;
-    }
-
-    .games{
-        gap:20px;
-        margin:10px;
-    }
-
-    .game img{
-        max-width:150px;
-    }
-
-    .game{
-        flex: 1 1 140px;
-    }
+    h1{font-size:24px;}
+    .scrollmenu a{font-size:14px;}
+    .game img{max-width:150px;}
 }
 </style>
-
 </head>
 
 <body>
@@ -109,23 +119,167 @@ h1{
 
 <h1>🧺Converso Store</h1>
 
+<div id="tokenDisplay">Tokens: 0</div>
+
+<div class="redeem-box">
+    <h2>🎟 Redeem Tokens</h2>
+    <button onclick="enterCode()">Enter Code</button>
+    <p id="result"></p>
+
+    <div id="uploadSection">
+        <p>📸 Upload the Premium Card</p>
+        <input type="file" accept="image/*" onchange="checkImage(event)">
+        <br>
+        <img id="preview">
+    </div>
+</div>
+
 <div class="games">
 
-<div class="game">
-<a href="Ping-Pong-World-Tour.html">
-<img src="pingpong.webp" alt="Ping Pong World Tour">
+<div class="game locked" id="game1">
+<a href="Ping-Pong-World-Tour.html" onclick="return checkAccess(1)">
+<img src="pingpong.webp">
 <br>🏓 Ping Pong World Tour
 </a>
+<br>
+<button onclick="buyGame(1,15)">Buy (15 tokens)</button>
 </div>
 
-<div class="game">
-<a href="Antistress.html">
-<img src="antistress.jpeg" alt="Antistress">
+<div class="game locked" id="game2">
+<a href="Antistress.html" onclick="return checkAccess(2)">
+<img src="antistress.jpeg">
 <br>🧸 Antistress
 </a>
+<br>
+<button onclick="buyGame(2,10)">Buy (10 tokens)</button>
 </div>
 
 </div>
+
+<script>
+// 💾 Load tokens & owned games
+let tokens = localStorage.getItem("tokens");
+let ownedGames = JSON.parse(localStorage.getItem("games")) || [];
+
+if(tokens === null) tokens = 0;
+if(tokens !== "∞") tokens = parseInt(tokens);
+
+updateDisplay();
+unlockOwned();
+
+// 🎟 Enter code
+function enterCode(){
+    let code = prompt("Enter your code:");
+    if(!code) return;
+    let num = parseInt(code);
+
+    if(code === "53791"){
+        show("✨ Upload the Premium Card to unlock infinite tokens!");
+        document.getElementById("uploadSection").style.display = "block";
+        return;
+    }
+
+    if(num >= 1 && num <= 25000){
+        tokens += 10;
+        save();
+        show("✅ You got 10 tokens!");
+    }
+    else if(num >= 25001 && num <= 50000){
+        tokens += 20;
+        save();
+        show("🔥 You got 20 tokens!");
+    }
+    else{
+        show("❌ Invalid code");
+    }
+}
+
+// 🎨 Image verification
+function checkImage(event){
+    const file = event.target.files[0];
+    if(!file) return;
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = e => img.src = e.target.result;
+
+    img.onload = function(){
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img,0,0);
+        const data = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+
+        let red=0, blue=0, total=data.length/4;
+        for(let i=0;i<data.length;i+=4){
+            let r=data[i], g=data[i+1], b=data[i+2];
+            if(r>180 && g<80 && b<80) red++;
+            if(b>120 && r<80) blue++;
+        }
+        let rRatio = red/total;
+        let bRatio = blue/total;
+
+        if(rRatio>0.05 && bRatio>0.2){
+            tokens = "∞";
+            save();
+            show("💎 Premium verified! Infinite tokens!");
+        } else {
+            show("❌ Access Denied");
+        }
+
+        document.getElementById("preview").src = img.src;
+    };
+    reader.readAsDataURL(file);
+}
+
+// 🛒 Buy game
+function buyGame(id, price){
+    if(tokens === "∞" || tokens >= price){
+        if(!ownedGames.includes(id)){
+            if(tokens !== "∞") tokens -= price;
+            ownedGames.push(id);
+            save();
+            unlockOwned();
+            show("🎉 Game unlocked!");
+        }
+    } else {
+        show("❌ Not enough tokens");
+    }
+}
+
+// 🔐 Check access before opening game
+function checkAccess(id){
+    if(tokens === "∞" || ownedGames.includes(id)){
+        return true;
+    } else {
+        show("🔒 You must buy this game first!");
+        return false;
+    }
+}
+
+// 💾 Save state
+function save(){
+    localStorage.setItem("tokens", tokens);
+    localStorage.setItem("games", JSON.stringify(ownedGames));
+    updateDisplay();
+}
+
+// UI
+function updateDisplay(){
+    document.getElementById("tokenDisplay").innerText = "Tokens: " + tokens;
+}
+
+function show(msg){
+    document.getElementById("result").innerText = msg;
+    updateDisplay();
+}
+
+function unlockOwned(){
+    ownedGames.forEach(id=>{
+        document.getElementById("game"+id).classList.remove("locked");
+    });
+}
+</script>
 
 </body>
 </html>
